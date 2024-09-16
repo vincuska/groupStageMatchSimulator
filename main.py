@@ -5,9 +5,9 @@ def guess_matches(group):
     num_teams = len(group)
     matchups = {}
 
-    for i in range(num_teams):
-        for j in range(i + 1, num_teams):
-            matchups[(i, j)] = [0, 0]
+    for team_a in range(num_teams):
+        for team_b in range(team_a + 1, num_teams):
+            matchups[(team_a, team_b)] = [0, 0]
 
     matches = list(combinations(range(num_teams), 2))
 
@@ -15,40 +15,40 @@ def guess_matches(group):
         if match_index >= len(matches):
             if all(goals == 0 for goals in remaining_goals) and all(goals == 0 for goals in remaining_goals_against):
                 results = [[0, 0, 0] for _ in range(num_teams)]
-                for (i, j), (goals_i, goals_j) in matchups.items():
-                    if goals_i > goals_j:
-                        results[i][0] += 1
-                        results[j][2] += 1
-                    elif goals_i < goals_j:
-                        results[i][2] += 1
-                        results[j][0] += 1
+                for (team_a, team_b), (goals_a, goals_b) in matchups.items():
+                    if goals_a > goals_b:
+                        results[team_a][0] += 1 # team_a wins
+                        results[team_b][2] += 1 # team_b loses
+                    elif goals_a < goals_b:
+                        results[team_a][2] += 1 # team_b wins
+                        results[team_b][0] += 1 # team_a loses
                     else:
-                        results[i][1] += 1
-                        results[j][1] += 1
+                        results[team_a][1] += 1 # draw for both
+                        results[team_b][1] += 1
 
-                for idx, (_, wins, draws, losses, _, _) in enumerate(group):
-                    if results[idx] != [wins, draws, losses]:
+                for team_idx, (_, wins, draws, losses, _, _) in enumerate(group):
+                    if results[team_idx] != [wins, draws, losses]:
                         return False
 
                 return matchups not in blacklist
             return False
 
-        i, j = matches[match_index]
-        for goals_i in range(min(remaining_goals[i], remaining_goals_against[j]) + 1):
-            for goals_j in range(min(remaining_goals[j], remaining_goals_against[i]) + 1):
-                matchups[(i, j)] = [goals_i, goals_j]
-                remaining_goals[i] -= goals_i
-                remaining_goals[j] -= goals_j
-                remaining_goals_against[i] -= goals_j
-                remaining_goals_against[j] -= goals_i
+        team_a, team_b = matches[match_index]
+        for goals_a in range(min(remaining_goals[team_a], remaining_goals_against[team_b]) + 1):
+            for goals_b in range(min(remaining_goals[team_b], remaining_goals_against[team_a]) + 1):
+                matchups[(team_a, team_b)] = [goals_a, goals_b]
+                remaining_goals[team_a] -= goals_a
+                remaining_goals[team_b] -= goals_b
+                remaining_goals_against[team_a] -= goals_b
+                remaining_goals_against[team_b] -= goals_a
 
                 if can_distribute_goals(remaining_goals, remaining_goals_against, match_index + 1, blacklist):
                     return True
 
-                remaining_goals[i] += goals_i
-                remaining_goals[j] += goals_j
-                remaining_goals_against[i] += goals_j
-                remaining_goals_against[j] += goals_i
+                remaining_goals[team_a] += goals_a
+                remaining_goals[team_b] += goals_b
+                remaining_goals_against[team_a] += goals_b
+                remaining_goals_against[team_b] += goals_a
 
         return False
 
@@ -63,10 +63,10 @@ def guess_matches(group):
             break
 
     print(f"Found {len(blacklist)} valid distributions:")
-    for idx, distribution in enumerate(blacklist, 1):
-        print(f"\nDistribution {idx}:")
-        for (i, j), goals in distribution.items():
-            print(f"{group[i][0]} vs {group[j][0]}: {goals[0]} - {goals[1]}")
+    for team_idx, distribution in enumerate(blacklist, 1):
+        print(f"\nDistribution {team_idx}:")
+        for (team_a, team_b), goals in distribution.items():
+            print(f"{group[team_a][0]} vs {group[team_b][0]}: {goals[0]} - {goals[1]}")
 
 group = [ # Country, Wins, Draws, Losses, Goals For, Goals Against
     ["Germany", 2, 1, 0, 8, 2],
