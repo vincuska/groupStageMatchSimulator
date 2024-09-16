@@ -12,7 +12,7 @@ The Group Stage Match Simulator is a Python program designed to reconstruct poss
 - **Backtracking Algorithm**: Utilizes an efficient backtracking algorithm to explore all possible goal distributions while pruning invalid branches early in the process.
 
 ## Technical Details
-The program is written in Python 3.12.2 and makes use of:
+The program is written in `Python 3.12.2` and makes use of:
 
 - `Itertools` for generating combinations
 - Recursive backtracking for efficient scenario exploration
